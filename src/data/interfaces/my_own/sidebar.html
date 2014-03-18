@@ -1,0 +1,17 @@
+<%page args="huidig"/>
+<div id="sidebar" >
+	<h1 class="clear">Menu</h1>
+    <ul class="sidemenu">
+    	<%
+    		options = ["Home","Upload","Download"]
+    	%>
+    	%for item in options:
+    	%if item==huidig:
+    	<li><a id="selected">${huidig}</a></li>
+    	%else:
+        <li><a href="${item.lower()}">${item}</a></li>
+        %endif
+        %endfor
+    </ul>
+</div>
+<% return %>
