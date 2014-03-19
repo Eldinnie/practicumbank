@@ -24,7 +24,7 @@ import sqlite3
 import time
 
 def dbFilename(filename="pracdb.db"):
-    return os.path.join(r"d:\Bibliotheek\Documenten\python\Worspace\web_test\src\data", filename)
+    return os.path.join(r"data", filename)
 
 def getCacheSize():
     return 32
