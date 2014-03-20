@@ -47,7 +47,6 @@ class pracdb():
         return serve_template("home.html")
     @cherrypy.expose
     def upload(self,*args,**kwargs):
-        print args,kwargs
         invul={}
         error=[]
         if kwargs:
@@ -88,10 +87,21 @@ class pracdb():
             else:
                 invul['cb']="off"
 
+            if not helper.checkFile(kwargs['docxfile']):
+                error.append("Geen geldig word-bestand")
+                errorflag=True
+
+            if len(kwargs['pdffile'].filename)>0 and not helper.checkFile(kwargs['pdffile'],"pdf"):
+                error.append("Geen geldig pdf-bestand")
+                errorflag=True
+
             if errorflag:
                 myDB=db.DBConnection()
                 items = myDB.select("SELECT hoofdstuk, klas FROM practica")
                 return serve_template("upload.html",erro=error,bekenden=dict(items),ingevuld=invul)
+            else:
+                bestandsnamen = helper.processUpload(kwargs)
+                print bestandsnamen
         myDB=db.DBConnection()
         items = myDB.select("SELECT hoofdstuk, klas FROM practica")
         return serve_template("upload.html",erro="",bekenden=dict(items),ingevuld={"klas":"0","hoofdstuk":"","Naam":"","cb":"off"})
