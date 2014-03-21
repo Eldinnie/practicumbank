@@ -6,13 +6,14 @@ Created on 20 mrt. 2014
 import sqlite3
 import practicumbank
 import os
+from datetime import date
+from practicumbank import db, logger
 
 def dbcheck():
 
     conn=sqlite3.connect(r'data\pracdb.db')
     c=conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS practica (prac_id INTEGER PRIMARY KEY, klas NUMERIC, hoofdstuk TEXT, name TEXT, cb BOOLEAN, bestandsids TEXT);")
-    c.execute("CREATE TABLE IF NOT EXISTS Bestanden (bestands_id INTEGER PRIMARY KEY, bestandsnaam TEXT, extensie TEXT);")
+    c.execute("CREATE TABLE IF NOT EXISTS practica (prac_id INTEGER PRIMARY KEY, klas NUMERIC, hoofdstuk TEXT, naam TEXT, cb BOOLEAN, bestanden TEXT);")
 
     conn.commit()
     c.close()
@@ -39,6 +40,10 @@ def saveFile(myfile,pad,naam):
     with open(save_file, "wb") as f:  # Important to set mode to wb
         f.write(data)
 
+def savetodb(table,controldict,newvaldict):
+    myDB = db.DBConnection()
+    myDB.upsert(table, newvaldict, controldict)
+
 def processUpload(kwargs):
     if kwargs['klas']=="nieuw":
         klas = kwargs['klasnieuw']
@@ -50,16 +55,36 @@ def processUpload(kwargs):
         hoofdstuk=kwargs['hoofdstuk']
     naam = kwargs['naam']
     if "cb" in kwargs.keys():
-        cb = kwargs['cb']
+        cb = True
+        if not "cb" in naam.lower():
+            naam += " CB"
     else:
-        cb="off"
-    bestandsnaamenpad = practicumbank.PRACTICUM_DIR+"\\klas "+klas+"\\"+hoofdstuk+"\\"+naam
+        cb=False
+
+    vandaag = date.today().strftime("%Y-%m-%d")
+    bestandsnaamenpad = practicumbank.PRACTICUM_DIR+"\\klas "+klas+"\\"+hoofdstuk+"\\"+naam+" - "+vandaag
     bestandspad = practicumbank.PRACTICUM_DIR+"\\klas "+klas+"\\"+hoofdstuk
     saveFile(kwargs['docxfile'],bestandspad,bestandsnaamenpad)
     retlist=[os.path.normpath(bestandsnaamenpad+".docx")]
     if checkFile(kwargs['pdffile'],"pdf"):
         saveFile(kwargs['pdffile'],bestandspad,bestandsnaamenpad)
         retlist.append(os.path.normpath(bestandsnaamenpad+".pdf"))
+
+    try:
+        query = "SELECT * FROM practica WHERE name = ?"
+        mydb=db.DBConnection()
+        indatabase = mydb.select(query, [naam])
+    except:
+        indatabase=None
+    if indatabase:
+        files=list(indatabase[5])
+        files.extend(retlist)
+    else:
+        files=retlist
+    controldict={"klas":int(klas),"hoofdstuk":hoofdstuk,"naam":naam}
+    valdict={"cb":cb,"bestanden":str(files)}
+    logger.log(str(controldict)+str(valdict))
+    savetodb("practica",controldict,valdict)
     return retlist
 
 

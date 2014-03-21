@@ -7,13 +7,21 @@ import cherrypy
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from mako import exceptions
-from practicumbank import db, helper
+from practicumbank import db, helper, logger
 import practicumbank
 import os
 
 def initialize():
     practicumbank.PAD = os.path.abspath(__file__)
     practicumbank.DIR = os.path.dirname(practicumbank.PAD)
+    practicumbank.LOG_DIR = os.path.join(os.path.dirname(practicumbank.PAD),"logs")
+    logger.pb_log_instance.initLogging()
+    logger.log("initiating practicumbank")
+    if not os.path.exists(practicumbank.LOG_DIR):
+        try:
+            os.makedirs(practicumbank.LOG_DIR)
+        except:
+            pass
     practicumbank.CONF  = {
                        '/': {
                              'tools.staticdir.root':  os.path.join(practicumbank.DIR,'data')
@@ -82,7 +90,7 @@ class pracdb():
                 invul['naam']=kwargs['naam']
 
             if 'cb' in kwargs.keys():
-                print kwargs['cb']
+                logger.log(kwargs['cb'])
                 invul['cb']=kwargs['cb']
             else:
                 invul['cb']="off"
@@ -101,7 +109,7 @@ class pracdb():
                 return serve_template("upload.html",erro=error,bekenden=dict(items),ingevuld=invul)
             else:
                 bestandsnamen = helper.processUpload(kwargs)
-                print bestandsnamen
+                return serve_template("uploaded.html",bestanden=bestandsnamen)
         myDB=db.DBConnection()
         items = myDB.select("SELECT hoofdstuk, klas FROM practica")
         return serve_template("upload.html",erro="",bekenden=dict(items),ingevuld={"klas":"0","hoofdstuk":"","Naam":"","cb":"off"})
