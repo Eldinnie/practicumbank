@@ -6,7 +6,7 @@ Created on 20 mrt. 2014
 import sqlite3
 import practicumbank
 import os
-from datetime import date
+from datetime import datetime
 from practicumbank import db, logger
 
 def dbcheck():
@@ -61,7 +61,7 @@ def processUpload(kwargs):
     else:
         cb=False
 
-    vandaag = date.today().strftime("%Y-%m-%d")
+    vandaag = datetime.today().strftime("%Y%m%d%H%M%S")
     bestandsnaamenpad = practicumbank.PRACTICUM_DIR+"\\klas "+klas+"\\"+hoofdstuk+"\\"+naam+" - "+vandaag
     bestandspad = practicumbank.PRACTICUM_DIR+"\\klas "+klas+"\\"+hoofdstuk
     saveFile(kwargs['docxfile'],bestandspad,bestandsnaamenpad)

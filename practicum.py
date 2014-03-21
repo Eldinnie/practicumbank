@@ -15,13 +15,13 @@ def initialize():
     practicumbank.PAD = os.path.abspath(__file__)
     practicumbank.DIR = os.path.dirname(practicumbank.PAD)
     practicumbank.LOG_DIR = os.path.join(os.path.dirname(practicumbank.PAD),"logs")
-    logger.pb_log_instance.initLogging()
-    logger.log("initiating practicumbank")
     if not os.path.exists(practicumbank.LOG_DIR):
         try:
             os.makedirs(practicumbank.LOG_DIR)
         except:
             pass
+    logger.pb_log_instance.initLogging()
+    logger.log("initiating practicumbank")
     practicumbank.CONF  = {
                        '/': {
                              'tools.staticdir.root':  os.path.join(practicumbank.DIR,'data')
