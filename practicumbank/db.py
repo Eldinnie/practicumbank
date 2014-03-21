@@ -22,6 +22,7 @@ from __future__ import with_statement
 import os
 import sqlite3
 import time
+from practicumbank import logger
 
 def dbFilename(filename="pracdb.db"):
     return os.path.join(r"data", filename)
@@ -58,12 +59,13 @@ class DBConnection:
                     sqlResult = self.connection.execute(query)
                 else:
                     #logger.debug(self.filename+": "+query+" with args "+str(args))
+                    logger.log(self.filename+": "+query+" with args "+str(args))
                     sqlResult = self.connection.execute(query, args)
                 self.connection.commit()
                 break
             except sqlite3.OperationalError, e:
                 if "unable to open database file" in e.message or "database is locked" in e.message:
-                    print 'Database Error: %s' % e
+                    logger.log('Database Error: %s' % e)
                     attempt += 1
                     time.sleep(1)
                 else:

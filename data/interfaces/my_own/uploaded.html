@@ -1,0 +1,20 @@
+<%!
+	huidig="Uploaded"
+%>
+
+<%inherit file="base.html"/>
+
+<%def name="main()">
+<div class="box">
+	<h1>Practicum <span class="gray">${huidig}</span></h1>
+    <p>De volgende bestanden zijn opgeslagen op schijf</p>
+    <ul>
+    	%for bestandsnaam in bestanden:
+    		<li>${bestandsnaam}</li>
+    	%endfor
+    </ul>
+</div>
+</%def>
+
+
+<%def name="headIncludes()"></%def>
